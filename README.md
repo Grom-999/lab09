@@ -13,18 +13,9 @@ $ open https://docs.docker.com/get-started/
 - [ ] 3. Выполнить инструкцию учебного материала
 - [ ] 4. Составить отчет и отправить ссылку личным сообщением в **Slack**
 
-## Tutorial
+## Report
 
-```sh
-$ export GITHUB_USERNAME=<имя_пользователя>
-```
-
-```
-$ cd ${GITHUB_USERNAME}/workspace
-$ pushd .
-$ source scripts/activate
-```
-
+Клонируем репозиторий с прошлой лр
 ```sh
 $ git clone https://github.com/${GITHUB_USERNAME}/lab07 lab08
 $ cd lab08
@@ -32,13 +23,13 @@ $ git submodule update --init
 $ git remote remove origin
 $ git remote add origin https://github.com/${GITHUB_USERNAME}/lab08
 ```
-
+Создаем файл для Docker
 ```sh
 $ cat > Dockerfile <<EOF
 FROM ubuntu:18.04
 EOF
 ```
-
+Устанавливаем компиляторы и cmake
 ```sh
 $ cat >> Dockerfile <<EOF
 
@@ -46,7 +37,7 @@ RUN apt update
 RUN apt install -yy gcc g++ cmake
 EOF
 ```
-
+Копируем все полученные файлы в новую директорию print и делаем ее активной (аналог cd)
 ```sh
 $ cat >> Dockerfile <<EOF
 
@@ -54,7 +45,7 @@ COPY . print/
 WORKDIR print
 EOF
 ```
-
+Выполняем сборку нашего приложения
 ```sh
 $ cat >> Dockerfile <<EOF
 
@@ -63,64 +54,58 @@ RUN cmake --build _build
 RUN cmake --build _build --target install
 EOF
 ```
-
+Добавляем переменную окружения для работы программы demo/main.cpp
 ```sh
 $ cat >> Dockerfile <<EOF
 
 ENV LOG_PATH /home/logs/log.txt
 EOF
 ```
-
+Указываем каталог, изменения в котором будут сохранены
 ```sh
 $ cat >> Dockerfile <<EOF
 
 VOLUME /home/logs
 EOF
 ```
-
+Переходим в созданную на этапе сборки директорию
 ```sh
 $ cat >> Dockerfile <<EOF
 
 WORKDIR _install/bin
 EOF
 ```
-
+Запускаем исполняемый файл приложения
 ```sh
 $ cat >> Dockerfile <<EOF
 
 ENTRYPOINT ./demo
 EOF
 ```
-
+Собираем образ
 ```sh
 $ docker build -t logger .
 ```
-
+Команда для просмотра доступных образов
 ```sh
 $ docker images
 ```
-
+Вызов нашей программы из образа
+(Флаг -i — это сокращение для --interactive. Благодаря этому флагу поток STDIN поддерживается в открытом состоянии даже если контейнер к STDIN не подключён. Флаг -t — это сокращение для --tty. Благодаря этому флагу выделяется псевдотерминал, который соединяет используемый терминал с потоками STDIN и STDOUT контейнера. Параметр -v задает каталог аналогично volume)
 ```sh
 $ mkdir logs
 $ docker run -it -v "$(pwd)/logs/:/home/logs/" logger
-text1
-text2
-text3
-<C-D>
+#Вводим текст и жмем CTRL-D
 ```
-
+Команда для просмотра состояния образа
 ```sh
 $ docker inspect logger
 ```
-
+Проверим, что программа вывела наш текст в лог
 ```sh
 $ cat logs/log.txt
 ```
-
-```sh
-$ gsed -i 's/lab07/lab08/g' README.md
-```
-
+Создадим .yml файл для создания образа
 ```sh
 $ vim .travis.yml
 /lang<CR>o
@@ -131,37 +116,10 @@ script:
 - docker build -t logger .<ESC>
 :wq
 ```
-
+Пуш всех изменений
 ```sh
 $ git add Dockerfile
 $ git add .travis.yml
 $ git commit -m"adding Dockerfile"
 $ git push origin master
-```
-
-```sh
-$ travis login --auto
-$ travis enable
-```
-
-## Report
-
-```sh
-$ popd
-$ export LAB_NUMBER=08
-$ git clone https://github.com/tp-labs/lab${LAB_NUMBER} tasks/lab${LAB_NUMBER}
-$ mkdir reports/lab${LAB_NUMBER}
-$ cp tasks/lab${LAB_NUMBER}/README.md reports/lab${LAB_NUMBER}/REPORT.md
-$ cd reports/lab${LAB_NUMBER}
-$ edit REPORT.md
-$ gist REPORT.md
-```
-
-## Links
-
-- [Book](https://www.dockerbook.com)
-- [Instructions](https://docs.docker.com/engine/reference/builder/)
-
-```
-Copyright (c) 2015-2021 The ISC Authors
 ```
