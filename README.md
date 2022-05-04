@@ -83,7 +83,7 @@ ENTRYPOINT ./demo
 EOF
 ```
 Дописываем эти строки в наш CMakeLists.txt, чтобы задать правила для сборки нового приложения demo/main.cpp
-```sh
+```cmake
 ...
 add_executable(demo ${CMAKE_CURRENT_SOURCE_DIR}/demo/main.cpp)
 target_link_libraries(demo print) 
