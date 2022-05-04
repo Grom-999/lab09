@@ -82,6 +82,15 @@ $ cat >> Dockerfile <<EOF
 ENTRYPOINT ./demo
 EOF
 ```
+Дописываем эти строки в наш CMakeLists.txt, чтобы задать правила для сборки нового приложения demo/main.cpp
+```sh
+...
+add_executable(demo ${CMAKE_CURRENT_SOURCE_DIR}/demo/main.cpp)
+target_link_libraries(demo print) 
+install(TARGETS demo RUNTIME DESTINATION bin)
+...
+```
+
 Собираем образ
 ```sh
 $ docker build -t logger .
