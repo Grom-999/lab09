@@ -8,77 +8,43 @@ $ open https://help.github.com/articles/creating-releases/
 
 ## Tasks
 
-- [ ] 1. Создать публичный репозиторий с названием **lab09** на сервисе **GitHub**
-- [ ] 2. Ознакомиться со ссылками учебного материала
-- [ ] 3. Получить токен для доступа к репозиториям сервиса **GitHub**
-- [ ] 4. Выполнить инструкцию учебного материала
-- [ ] 5. Составить отчет и отправить ссылку личным сообщением в **Slack**
+- [x] 1. Создать публичный репозиторий с названием **lab09** на сервисе **GitHub**
+- [x] 2. Ознакомиться со ссылками учебного материала
+- [x] 3. Получить токен для доступа к репозиториям сервиса **GitHub**
+- [x] 4. Выполнить инструкцию учебного материала
+- [x] 5. Составить отчет и отправить ссылку личным сообщением в **Slack**
 
-## Tutorial
+## Report
 
+Подготовка к работе
 ```sh
-$ export GITHUB_TOKEN=<полученный_токен>
-$ export GITHUB_USERNAME=<имя_пользователя>
-$ export PACKAGE_MANAGER=<пакетный менеджер>
-$ export GPG_PACKAGE_NAME=<gpg2|gpg>
-```
-
-```sh
-# for *-nix system
-$ $PACKAGE_MANAGER install xclip
-$ alias gsed=sed
-$ alias pbcopy='xclip -selection clipboard'
-$ alias pbpaste='xclip -selection clipboard -o'
-```
-
-```sh
-$ cd ${GITHUB_USERNAME}/workspace
-$ pushd .
-$ source scripts/activate
-$ go get github.com/aktau/github-release
-```
-
-```sh
-$ git clone https://github.com/${GITHUB_USERNAME}/lab08 projects/lab09
-$ cd projects/lab09
+$ git clone https://github.com/IvanGalk1n/lab08 lab09 #клонируем репозиторий
+$ cd lab09/
 $ git remote remove origin
-$ git remote add origin https://github.com/${GITHUB_USERNAME}/lab09
+$ git remote add origin https://github.com/IvanGalk1n/lab09 #настраиваем удаленный репозиторий
 ```
 
+Создаем ключ шифрования
 ```sh
-$ gsed -i 's/lab08/lab09/g' README.md
+$ gpg --list-secret-keys --keyid-format LONG  #посмотреть секретные ключи с форматом идентификатора лонг (16 символов)
+$ gpg --full-generate-key #сгенерировать полноценную пару ключей
+$ gpg --list-secret-keys --keyid-format LONG #посмотреть секретные ключи с форматом идентификатора лонг (16 символов)
+$ GPG_KEY_ID=$(gpg --list-secret-keys --keyid-format LONG | grep ssb | tail -1 | awk '{print $2}' | awk -F'/' '{print $2}') #создаем переменную хранящую идентификатор открытого ключа
+$ GPG_SEC_KEY_ID=$(gpg --list-secret-keys --keyid-format LONG | grep sec | tail -1 | awk '{print $2}' | awk -F'/' '{print $2}') #создаем переменную хранящую идентификатор секретного ключа
+$ gpg --armor --export ${GPG_KEY_ID} #вывод ключа в текстовом формате (--armor=-a)
+-----BEGIN PGP PUBLIC KEY BLOCK-----
+*************** # - это ключ, который копируем в гитхаб настройки
+-----END PGP PUBLIC KEY BLOCK-----
+
+$ open https://github.com/settings/keys #открываем настройки гитхаба и копируем туда наш открытый gpg ключ
 ```
 
-```sh
-$ $PACKAGE_MANAGER install ${GPG_PACKAGE_NAME}
-$ gpg --list-secret-keys --keyid-format LONG
-$ gpg --full-generate-key
-$ gpg --list-secret-keys --keyid-format LONG
-$ gpg -K ${GITHUB_USERNAME}
-$ GPG_KEY_ID=$(gpg --list-secret-keys --keyid-format LONG | grep ssb | tail -1 | awk '{print $2}' | awk -F'/' '{print $2}')
-$ GPG_SEC_KEY_ID=$(gpg --list-secret-keys --keyid-format LONG | grep sec | tail -1 | awk '{print $2}' | awk -F'/' '{print $2}')
-$ gpg --armor --export ${GPG_KEY_ID} | pbcopy
-$ pbpaste
-$ open https://github.com/settings/keys
-$ git config user.signingkey ${GPG_SEC_KEY_ID}
-$ git config gpg.program gpg
-```
-
-```sh
-$ test -r ~/.bash_profile && echo 'export GPG_TTY=$(tty)' >> ~/.bash_profile
-$ echo 'export GPG_TTY=$(tty)' >> ~/.profile
-```
-
+Генерируем tgz архив
 ```sh
 $ cmake -H. -B_build -DCPACK_GENERATOR="TGZ"
 $ cmake --build _build --target package
 ```
-
-```sh
-$ travis login --auto
-$ travis enable
-```
-
+Создаем тэг и пушим его
 ```sh
 $ git tag -s v0.1.0.0
 $ git tag -v v0.1.0.0
