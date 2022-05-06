@@ -44,14 +44,15 @@ $ open https://github.com/settings/keys #открываем настройки �
 $ cmake -H. -B_build -DCPACK_GENERATOR="TGZ"
 $ cmake --build _build --target package
 ```
+
 Создаем тэг и пушим его
 ```sh
-$ git tag -s v0.1.0.0
-$ git tag -v v0.1.0.0
-$ git show v0.1.0.0
+$ git tag -s v0.1.0.0 #-s make a GPG-signed tag, using the default e-mail address’s key (создает тэг использующий gpg-ключ)
+$ git tag -v v0.1.0.0 #-v verify the GPG signature of the given tag names (выводит информацию о тэге и подписи)
 $ git push origin master --tags
 ```
 
+Создание и аплоад релиза из тэга
 ```sh
 $ github-release --version
 $ github-release info -u ${GITHUB_USERNAME} -r lab09
@@ -59,11 +60,9 @@ $ github-release release \
     --user ${GITHUB_USERNAME} \
     --repo lab09 \
     --tag v0.1.0.0 \
-    --name "libprint" \
+    --name "logger" \
     --description "my first release"
-```
-
-```sh
+    
 $ export PACKAGE_OS=`uname -s` PACKAGE_ARCH=`uname -m` 
 $ export PACKAGE_FILENAME=print-${PACKAGE_OS}-${PACKAGE_ARCH}.tar.gz
 $ github-release upload \
@@ -74,23 +73,11 @@ $ github-release upload \
     --file _build/*.tar.gz
 ```
 
+Проверяем что релиз загрузился и скачиваем архив
 ```sh
 $ github-release info -u ${GITHUB_USERNAME} -r lab09
 $ wget https://github.com/${GITHUB_USERNAME}/lab09/releases/download/v0.1.0.0/${PACKAGE_FILENAME}
 $ tar -ztf ${PACKAGE_FILENAME}
-```
-
-## Report
-
-```sh
-$ popd
-$ export LAB_NUMBER=09
-$ git clone https://github.com/tp-labs/lab${LAB_NUMBER} tasks/lab${LAB_NUMBER}
-$ mkdir reports/lab${LAB_NUMBER}
-$ cp tasks/lab${LAB_NUMBER}/README.md reports/lab${LAB_NUMBER}/REPORT.md
-$ cd reports/lab${LAB_NUMBER}
-$ edit REPORT.md
-$ gistup -m "lab${LAB_NUMBER}"
 ```
 
 ## Links
